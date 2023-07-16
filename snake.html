@@ -1,7 +1,12 @@
 <html>
 	<head>
 		<title>Snake</title>
+
 		<link rel="stylesheet" href="snake.css" />
+		<link
+			href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"
+			rel="stylesheet"
+		/>
 		<link
 			rel="stylesheet"
 			href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
@@ -14,14 +19,22 @@
 				<div class="game-press-title">
 					ENTER TO PLAY / PAUSE
 					<div class="game-speed-btns">
-						<div id="game-speed-faster" class="game-speed-btn speed-faster">
+						<div
+							title="Push + or Click Here"
+							id="game-speed-faster"
+							class="game-speed-btn speed-faster"
+						>
 							Faster
 						</div>
-						<div id="game-speed-slower" class="game-speed-btn speed-slower">
+						<div
+							title="Push - or Click Here"
+							id="game-speed-slower"
+							class="game-speed-btn speed-slower"
+						>
 							Slower
 						</div>
 
-						<div id="game-settings-btn" class="game-settings-btn">
+						<div id="game-settings-btn" class="game-settings-btn hoverable">
 							<i class="bi bi-gear"></i>
 						</div>
 					</div>
@@ -29,7 +42,7 @@
 				<div id="game">
 					<div id="hard-mode">
 						Hard Mode
-						<label class="switch">
+						<label for="hard-mode-input" class="switch">
 							<input
 								data-validate-method="validateHardMode"
 								data-game-field="hardMode"
@@ -41,6 +54,10 @@
 						</label>
 					</div>
 					<div id="game-field"></div>
+					<div class="game-speed-visible">
+						Speed
+						<div id="game-speed-visible">2</div>
+					</div>
 					<div id="game-description">
 						<div class="game-controller-info">
 							<div>
@@ -97,7 +114,7 @@
 					<i class="bi bi-x-lg"></i>
 				</div>
 				<div class="game-settings__item">
-					<label for="game-size">Cell Count Row / Column</label>
+					<label for="game-cell-count">Cell Count Row / Column</label>
 					<input
 						data-validate-method="validateInputCellCount"
 						data-game-field="gameCellCount"
@@ -135,20 +152,21 @@
 		</div>
 	</body>
 
-	<script src="snake.js"></script>
-	<script>
+	<script type="module">
+		import { Game } from "/snake/game.js";
+
 		window.onload = () => {
-			let gameSettings = document.getElementById("game-settings");
-			let hardModeInput = document.getElementById("hard-mode-input");
-			let gameCellCount = parseFloat(
+			const gameSettings = document.getElementById("game-settings");
+			const hardModeInput = document.getElementById("hard-mode-input");
+			const gameCellCount = parseFloat(
 				document.getElementById("game-cell-count").value
 			);
 
-			let gameCellSize = parseFloat(
+			const gameCellSize = parseFloat(
 				document.getElementById("game-cell-size").value
 			);
 
-			let gameSpeed = parseFloat(document.getElementById("game-speed").value);
+			const gameSpeed = parseFloat(document.getElementById("game-speed").value);
 
 			let game = new Game(
 				gameCellCount,
@@ -166,15 +184,24 @@
 					const value = game[e.target.dataset.validateMethod](
 						parseFloat(e.target.value)
 					);
-
-					game.changeGameSettings(e.target.dataset.gameField, value);
-					e.target.value = value;
+					
+					if (e.target.id === "game-speed") {
+						game.setGameSpeed(value);
+					} else {
+						game.changeGameSettings(e.target.dataset.gameField, value);
+						e.target.value = value;
+					}
 				});
 			});
 
 			hardModeInput.addEventListener("change", (e) => {
+				game.hardModeToggle();
 				game.changeGameSettings(e.target.dataset.gameField, e.target.checked);
-				console.log(game);
+			});
+
+			document.getElementById("game-field").addEventListener("click", () => {
+				game.gameUnpause();
+				game.toggleGameStatusClass();
 			});
 
 			document.getElementById("game-reset").addEventListener("click", () => {
